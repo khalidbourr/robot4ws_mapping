@@ -23,6 +23,11 @@ public:
         elevation_variance_layer_name = "elevation_variance";
         obstacles_layer_name = "obstacles";
 
+        // In constructor, add:
+        color_layer_name = "color_id";
+        color_variance_layer_name = "color_variance";
+
+
         // Global map init
         globalMap_.setFrameId(grid_map_frame_id);
         globalMap_.setGeometry(grid_map::Length(global_map_size, global_map_size), cell_size);
@@ -30,11 +35,19 @@ public:
         globalMap_.add(elevation_variance_layer_name, 1e6);
         globalMap_.add(obstacles_layer_name, 0.0);
 
+        // Add to global map init
+        globalMap_.add(color_layer_name, 0.0);
+        globalMap_.add(color_variance_layer_name, 1e6);
+
         // Subscriber per PointCloud2
         cloud_sub = nh_.subscribe(lidar_topic_name, 10, &multi_layer_map::pointCloudCallback, this);
         odom_sub = nh_.subscribe(odom_topic_name, 5, &multi_layer_map::odom_callback, this);
         costmap_sub = nh_.subscribe(costmap2d_topic_name, 5, &multi_layer_map::costmap_callback, this);
         grid_map_pub = nh_.advertise<grid_map_msgs::GridMap>(grid_map_topic_name, 1, true);
+
+        // Add subscriber
+        color_grid_sub = nh_.subscribe("/color_detection_node/color_map", 5, 
+                                    &multi_layer_map::color_grid_callback, this);
 
         pose_received = false;
     }
@@ -142,6 +155,29 @@ public:
         }
 
         return local_global_points_mapping;
+    }
+
+
+
+    void color_grid_callback(const grid_map_msgs::GridMap::ConstPtr& msg) {
+            grid_map::GridMap localMap;
+            grid_map::GridMapRosConverter::fromMessage(*msg, localMap);
+
+            geometry_msgs::TransformStamped transform;
+            transform.transform.translation.x = 0.0;
+            transform.transform.translation.y = 0.0;
+            transform.transform.translation.z = 0.0;
+            transform.transform.rotation.x = 0.0;
+            transform.transform.rotation.y = 0.0;
+            transform.transform.rotation.z = 0.0;
+            transform.transform.rotation.w = 1.0;
+
+            // Use existing transform and update functions
+            std::list<std::tuple<geometry_msgs::PointStamped,geometry_msgs::PointStamped>> transformed_points = 
+                applyTransform(localMap, color_layer_name, color_variance_layer_name, transform);
+            
+            updateGlobalMapKalman(localMap, color_layer_name, color_variance_layer_name, 
+                                transform, transformed_points);
     }
 
     void updateGlobalMapKalman(grid_map::GridMap& localMap, const std::string& mean_layer_name, const std::string& variance_layer_name, geometry_msgs::TransformStamped transform, std::list<std::tuple<geometry_msgs::PointStamped,geometry_msgs::PointStamped>> local_global_points_mapping){
@@ -447,6 +483,12 @@ public:
             grid_map_topic_name = "grid_map";
             ROS_WARN_STREAM("Parameter [gridmap/grid_map_topic_name] not found. Using default value: " << grid_map_topic_name);
         }
+
+        if (! nh_.getParam("gridmap/color_variance",color_variance))
+        {
+            color_variance = 0.1;
+            ROS_WARN_STREAM("Parameter [gridmap/color_variance] not found. Using default value: " << color_variance);
+        }
     }
 
     void load_robot_static_tf(){
@@ -462,13 +504,18 @@ public:
         }
     }
 
-private:
+protected:
     //Ros attributes & topics:
     ros::NodeHandle nh_;
     ros::Subscriber cloud_sub;
     ros::Subscriber odom_sub;
     ros::Subscriber costmap_sub;
     ros::Publisher grid_map_pub; 
+
+
+    std::string color_layer_name;
+    std::string color_variance_layer_name;
+    ros::Subscriber color_grid_sub;
     
     std::string grid_map_topic_name;
     std::string lidar_topic_name;
@@ -483,6 +530,9 @@ private:
     double global_map_size;
     double local_map_size;
     double cell_size;
+
+    double color_variance;  
+
     
     std::string elevation_layer_name;
     std::string elevation_variance_layer_name;

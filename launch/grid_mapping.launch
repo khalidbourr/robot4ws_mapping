@@ -1,0 +1,18 @@
+<launch>
+    <!-- Load gridmap parameters -->
+    <rosparam command="load" file="$(find robot4ws_mapping)/config/archimede_gridmap.yaml" />
+    
+    <!-- Load costmap parameters -->
+    <rosparam command="load" file="$(find robot4ws_mapping)/config/costmap_2d_archimede.yaml" />
+    <rosparam command="load" file="$(find robot4ws_mapping)/config/costmap_2d.yaml" />
+
+        <!-- Static transforms -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="velodyne_to_base_link"
+          args="0 0 0 0 0 0 Archimede_base_link_real velodyne" />
+    
+    <!-- Launch the gridmap node -->
+    <node pkg="robot4ws_mapping" type="gridmap_node" name="gridmap_node" output="screen">
+        <rosparam command="load" file="$(find robot4ws_mapping)/config/archimede_gridmap.yaml" />
+    </node>
+
+</launch>

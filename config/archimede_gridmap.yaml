@@ -1,3 +1,34 @@
+# # gridmap_config.yaml
+# gridmap:
+#   # Use simulation time
+#   use_sim_time: true
+  
+#   # Map parameters
+#   cell_size: 0.05  # Resolution
+#   global_map_size: 20.0  # Based on length_in_x/y
+#   local_map_size: 5.0
+#   point_cloud_max_height_threshold: 1.0  # Based on ignore_points_above
+  
+#   # Sensor parameters
+#   lidar_variance: 0.01  # Based on variance_threshold
+  
+#   # Topic names
+#   lidar_topic_name: "/Archimede/velodyne_points"
+#   odom_topic_name: "/Archimede/odom"
+#   costmap2d_topic_name: "/costmap_2d_node/costmap/costmap"
+#   grid_map_topic_name: "grid_map"
+  
+#   # Frame IDs
+#   grid_map_frame_id: "odom"
+#   base_link_frame_id: "Archimede_base_link_real"
+#   lidar_frame_id: "velodyne"
+#   foot_print_frame_id: "Archimede_base_link_real"
+  
+#   # Processing parameters
+#   sensor_processor_rate: 5.0
+#   min_num_points: 500
+#   data_skip_step: 2
+
 # map params
 grid_map_topic_name: grid_map
 cell_size: 0.1 # meters
@@ -17,3 +48,11 @@ lidar_frame_id: Archimede_velodyne
 lidar_topic_name: /Archimede/velodyne_points
 odom_topic_name: /gazebo_2_odom
 costmap2d_topic_name: /costmap_2d_node/costmap/costmap
+
+camera:
+  offset:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+color_detection:
+  min_area: 100.0

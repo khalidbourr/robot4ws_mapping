@@ -10,15 +10,15 @@
   <arg name="costmap_config_file" default="costmap_2d_archimede.yaml"/>
 
   <!-- archimede_gazebo simulations arguments -->
-  <arg name="include_gazebo" default="false"/>
-  <arg name="include_teleop" default="false"/>
+  <arg name="include_gazebo" default="true"/>
+  <arg name="include_teleop" default="true"/>
   <arg name="rocker_differential" default="false"/>
   <arg name="world_name" default="tilted_floor_walls_and_obstacles.world"/>
-  <arg name="p38_env" default="/home/ros/p38Env/bin/python3.8"/>
+  <arg name="p38_env" default="/home/ros/p38Venv/bin/python3.8"/>
   <arg name="add_velodyneHDL32E" default="true"/>
 
   <!-- link_state_to_odom node argument -->
-  <arg name="include_linkstates2odom" default="false"/>
+  <arg name="include_linkstates2odom" default="true"/>
 
   <!-- play bag arguments -->
   <arg name="include_bag" default="false"/>  
@@ -65,5 +65,5 @@
     <node pkg="rosbag" type="play" name="rosbag_play" args="$(arg bag_file)" output="screen"/>
   </group>
 
-</launch>
 
+</launch>

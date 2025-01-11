@@ -1,0 +1,18 @@
+<launch>
+    <!-- Include the external launch file with the debug argument set to true -->
+    <include file="$(find robot4ws_perception)/launch/color_detection.launch">
+        <arg name="debug" value="false"/>
+    </include>
+
+    <!--<include file="$(find robot4ws_mapping)/launch/link_state_to_odom.launch"/> -->
+    
+    <!-- Launch the Color Grid Mapper Node -->
+<node pkg="robot4ws_mapping" type="color_grid_mapper" name="color_grid_mapper_node" output="screen">
+    <param name="gridmap/cell_size" value="0.05" />
+    <param name="gridmap/local_map_size" value="12.0" />
+    <param name="/tf2_buffer_cache_time" value="10.0"/>
+    <remap from="~/color_grid_map" to="/color_grid_map"/>
+</node>
+    <!-- Launch RViz for visualization 
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot4ws_mapping)/rviz/color_grid.rviz" respawn="true"/>-->
+</launch>
